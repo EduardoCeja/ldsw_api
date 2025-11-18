@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "147653022174",
+    "project_id": "ldsqapi",
+    "storage_bucket": "ldsqapi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:147653022174:android:c7ac916883803f5715cd4f",
+        "android_client_info": {
+          "package_name": "com.example.ldsw_api"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANYtIhy_hYmDzgLy6QxLS0JOJ9-HkeqhI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

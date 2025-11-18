@@ -1,3 +1,16 @@
+// Configuración del classpath para plugins
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.0.2") // Ajusta según tu versión
+        classpath("com.google.gms:google-services:4.4.2")
+    }
+}
+
+// Repositorios para todos los proyectos
 allprojects {
     repositories {
         google()
@@ -5,6 +18,7 @@ allprojects {
     }
 }
 
+// Redefinición del directorio de compilación
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory
         .dir("../../build")
@@ -15,10 +29,12 @@ subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// Tarea de limpieza
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
