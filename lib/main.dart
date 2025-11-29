@@ -636,16 +636,28 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A), // 🔹 gris carbón
+      backgroundColor: const Color(0xFF1A1A1A), // gris carbón
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        centerTitle: false,
-        title: const Text('Home'),
+        centerTitle: true,
+        title: const Text(
+          'Home',
+          style: TextStyle(
+            color: Colors.white,         // 👈 texto en blanco
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.white),
           onPressed: () {},
@@ -660,8 +672,8 @@ class _MainPageState extends State<MainPage> {
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xFF2E2E2E), // 🔹 gris oscuro
-                Color(0xFF4B4B4B), // 🔹 gris más claro
+                Color(0xFF2E2E2E), // gris oscuro
+                Color(0xFF4B4B4B), // gris más claro
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -670,81 +682,87 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
 
-      // ================================================================
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ============================
-            // ENCABEZADO ACTIVIDAD
-            // ============================
-            Card(
-              color: Colors.white.withOpacity(0.05),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Text(
-                      'Materia: Diseño de aplicaciones móviles',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
+            /// ============================
+            /// ENCABEZADO ACTIVIDAD CENTRADO
+            /// ============================
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 380,
+                ),
+                child: Card(
+                  color: Colors.white.withOpacity(0.05),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Materia: Diseño de aplicaciones móviles',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Actividad: Pantalla de catálogo de películas',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Asesora: Lotzy Beatriz Fonseca Chiu',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Alumno: Eduardo Ceja Robles',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Fecha: 17/11/2025',
+                          style: TextStyle(
+                            color: Colors.white60,
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Actividad: Pantalla de catálogo de películas',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Asesora: Lotzy Beatriz Fonseca Chiu',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Alumno: Eduardo Ceja Robles',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Fecha: 17/11/2025',
-                      style: TextStyle(
-                        color: Colors.white60,
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // ============================
-            // CARRUSEL DESTACADO
-            // ============================
+            /// ============================
+            /// CARRUSEL DESTACADO
+            /// ============================
             Text(
               'Destacadas',
               style: theme.textTheme.titleLarge?.copyWith(
@@ -823,7 +841,7 @@ class _MainPageState extends State<MainPage> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF555555), // gris medio
+                                  color: const Color(0xFF555555),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
@@ -879,12 +897,11 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
 
-
             const SizedBox(height: 14),
 
-            // ============================
-            // PUNTITOS DEL CARRUSEL
-            // ============================
+            /// ============================
+            /// PUNTITOS DEL CARRUSEL
+            /// ============================
             Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -906,9 +923,9 @@ class _MainPageState extends State<MainPage> {
 
             const SizedBox(height: 24),
 
-            // ============================
-            // CATEGORÍAS (chips)
-            // ============================
+            /// ============================
+            /// CATEGORÍAS (chips)
+            /// ============================
             SizedBox(
               height: 40,
               child: ListView.separated(
@@ -928,15 +945,16 @@ class _MainPageState extends State<MainPage> {
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0xFF4A4A4A) // 🔹 gris claro
-                            : const Color(0xFF2A2A2A), // 🔹 gris oscuro
+                            ? const Color(0xFF4A4A4A) // gris claro
+                            : const Color(0xFF2A2A2A), // gris oscuro
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         _genres[index],
                         style: TextStyle(
-                          color:
-                              isSelected ? Colors.white : Colors.white70,
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.white70,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
@@ -949,9 +967,9 @@ class _MainPageState extends State<MainPage> {
 
             const SizedBox(height: 24),
 
-            // ============================
-            // LATEST MOVIE
-            // ============================
+            /// ============================
+            /// LATEST MOVIE
+            /// ============================
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1014,7 +1032,6 @@ class _MainPageState extends State<MainPage> {
                       ),
                     ),
                   );
-
                 },
               ),
             ),
@@ -1024,6 +1041,7 @@ class _MainPageState extends State<MainPage> {
     );
   }
 }
+
 
 /// =======================================
 ///   MODAL DETALLE DE PELÍCULA
@@ -1231,46 +1249,93 @@ class _AdminPageState extends State<AdminPage> {
     super.dispose();
   }
 
-  void _addMovie() {
-    if (!_formKey.currentState!.validate()) return;
+Future<void> _addMovie() async {
+  if (!_formKey.currentState!.validate()) return;
 
-    final movie = Movie(
-      title: _titleCtrl.text.trim(),
-      year: _yearCtrl.text.trim(),
-      director: _directorCtrl.text.trim(),
-      genre: _genreCtrl.text.trim(),
-      synopsis: _synopsisCtrl.text.trim(),
-      imageUrl: _imageUrlCtrl.text.trim(),
-      tag: 'Custom', // etiqueta genérica
-    );
+  final movie = Movie(
+    title: _titleCtrl.text.trim(),
+    year: _yearCtrl.text.trim(),
+    director: _directorCtrl.text.trim(),
+    genre: _genreCtrl.text.trim(),
+    synopsis: _synopsisCtrl.text.trim(),
+    imageUrl: _imageUrlCtrl.text.trim(),
+    tag: 'Custom', // etiqueta genérica para admin
+  );
 
+  try {
+    // 1) Guardar registro en Firebase (colección de catálogo)
+    await FirebaseFirestore.instance.collection('moviesCatalog').add({
+      'title': movie.title,
+      'year': movie.year,
+      'director': movie.director,
+      'genre': movie.genre,
+      'synopsis': movie.synopsis,
+      'imageUrl': movie.imageUrl,
+      'tag': movie.tag,
+      'createdAt': FieldValue.serverTimestamp(),
+      'createdBy': kAdminUsername, // admin@test.com
+    });
+
+    // 2) Actualizar la lista en memoria para que se vea en la app
     setState(() {
       kMovies.add(movie);
     });
 
+    // 3) Feedback al usuario
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Película agregada al catálogo')),
+      const SnackBar(
+        content: Text('Película agregada y registrada en Firebase'),
+      ),
     );
 
+    // 4) Limpiar formulario
     _titleCtrl.clear();
     _yearCtrl.clear();
     _directorCtrl.clear();
     _genreCtrl.clear();
     _synopsisCtrl.clear();
     _imageUrlCtrl.clear();
-  }
-
-  void _removeMovie(int index) {
-    final removed = kMovies[index];
-
-    setState(() {
-      kMovies.removeAt(index);
-    });
-
+  } catch (e, st) {
+    debugPrint('Error guardando película en Firebase: $e');
+    debugPrintStack(stackTrace: st);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Película "${removed.title}" eliminada')),
+      const SnackBar(
+        content: Text('Error al guardar en Firebase'),
+      ),
     );
   }
+}
+
+
+Future<void> _removeMovie(int index) async {
+  final removed = kMovies[index];
+
+  setState(() {
+    kMovies.removeAt(index);
+  });
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Película "${removed.title}" eliminada')),
+  );
+
+  // Registrar la baja en Firebase (log de auditoría)
+  try {
+    await FirebaseFirestore.instance.collection('moviesDeletions').add({
+      'title': removed.title,
+      'year': removed.year,
+      'director': removed.director,
+      'genre': removed.genre,
+      'synopsis': removed.synopsis,
+      'imageUrl': removed.imageUrl,
+      'tag': removed.tag,
+      'deletedAt': FieldValue.serverTimestamp(),
+      'deletedBy': kAdminUsername,
+    });
+  } catch (e) {
+    debugPrint('Error registrando baja en Firebase: $e');
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
