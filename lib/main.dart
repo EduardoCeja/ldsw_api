@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 // Firebase
 import 'package:firebase_core/firebase_core.dart';
@@ -174,7 +172,6 @@ class _PillProgress extends StatelessWidget {
   }
 }
 
-
 /// =======================================
 ///   LOGIN / PANTALLA DE INICIO
 /// =======================================
@@ -217,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, AdminPage.routeName);
     } else if (user == kHardcodedUsername && pass == kHardcodedPassword) {
-      //Usuario normal → va al catálogo
+      // Usuario normal → va al catálogo
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, MainPage.routeName);
     } else {
@@ -274,7 +271,7 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  Icons.catching_pokemon,
+                  Icons.movie,
                   size: 72,
                   color: theme.colorScheme.primary,
                 ),
@@ -364,148 +361,16 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-
-/// =======================================
-///   HELPERS GLOBALES (IMPORTANTE)
-/// =======================================
-String capitalize(String s) {
-  if (s.isEmpty) return s;
-  return s[0].toUpperCase() + s.substring(1);
-}
-
-String formatMeters(double m) =>
-    '${m.toStringAsFixed(m >= 1 ? 2 : 1)} m';
-
-String formatKg(double kg) =>
-    '${kg.toStringAsFixed(1)} kg';
-
-/// =======================================
-///   MODELOS
-/// =======================================
-class Pokemon {
-  final int id;
-  final String name;
-  final String imageUrl;
-
-  Pokemon({required this.id, required this.name, required this.imageUrl});
-
-  factory Pokemon.fromListItem(Map<String, dynamic> json) {
-    final name = json['name'];
-    final url = json['url'];
-    final id = int.parse(RegExp(r'pokemon/(\d+)/')
-        .firstMatch(url)!
-        .group(1)!);
-
-    return Pokemon(
-      id: id,
-      name: name,
-      imageUrl:
-          'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png',
-    );
-  }
-}
-
-class PokemonDetail {
-  final int id;
-  final String name;
-  final String imageUrl;
-  final List<String> types;
-  final double heightMeters;
-  final double weightKg;
-  final Map<String, int> stats;
-
-  PokemonDetail({
-    required this.id,
-    required this.name,
-    required this.imageUrl,
-    required this.types,
-    required this.heightMeters,
-    required this.weightKg,
-    required this.stats,
-  });
-
-  factory PokemonDetail.fromJson(Map<String, dynamic> json) {
-    final artwork =
-        json['sprites']['other']['official-artwork']['front_default'] ??
-            json['sprites']['front_default'];
-
-    return PokemonDetail(
-      id: json['id'],
-      name: json['name'],
-      imageUrl: artwork,
-      types: (json['types'] as List)
-          .map((e) => e['type']['name'] as String)
-          .toList(),
-      heightMeters: json['height'] / 10,
-      weightKg: json['weight'] / 10,
-      stats: {
-        for (var s in json['stats'])
-          s['stat']['name']: s['base_stat'],
-      },
-    );
-  }
-}
-
-/// =======================================
-///   API CALLS
-/// =======================================
-Future<List<Pokemon>> fetchPokemon({int limit = 50}) async {
-  final uri = Uri.parse(
-      'https://pokeapi.co/api/v2/pokemon?limit=$limit&offset=0');
-
-  final res = await http.get(uri);
-
-  if (res.statusCode != 200) {
-    throw Exception('Error al obtener Pokémon');
-  }
-
-  final list = json.decode(res.body)['results'] as List;
-
-  return list.map((e) => Pokemon.fromListItem(e)).toList();
-}
-
-Future<PokemonDetail> fetchPokemonDetail(int id) async {
-  final res = await http.get(
-    Uri.parse('https://pokeapi.co/api/v2/pokemon/$id'),
-  );
-
-  if (res.statusCode != 200) {
-    throw Exception('Error al cargar detalle');
-  }
-
-  return PokemonDetail.fromJson(json.decode(res.body));
-}
-
-/// =======================================
-///   FIREBASE SAVE
-/// =======================================
-Future<bool> savePokemonSelection(Pokemon pokemon) async {
-  try {
-    await FirebaseFirestore.instance.collection('pokemonSelections').add({
-      'pokemonId': pokemon.id,
-      'name': pokemon.name,
-      'imageUrl': pokemon.imageUrl,
-      'selectedAt': DateTime.now().toIso8601String(),
-      'studentName': 'Eduardo Ceja Robles',
-    });
-
-    return true;
-  } catch (e) {
-    print('Error Firebase: $e');
-    return false;
-  }
-}
-
 /// =======================================
 ///   MODELO DE PELÍCULA Y CATÁLOGO
 /// =======================================
 class Movie {
   final String title;
   final String imageUrl;
-  final String tag;      // idioma / categoría
-  final String year;     // Año
+  final String tag; // idioma / categoría
+  final String year; // Año
   final String director; // Director
-  final String genre;    // Género
+  final String genre; // Género
   final String synopsis; // Sinopsis
 
   Movie({
@@ -520,6 +385,17 @@ class Movie {
 }
 
 final List<Movie> kMovies = [
+  Movie(
+    title: 'El Conjuro 4: Last Rites',
+    tag: 'English',
+    year: '2025',
+    director: 'Michael Chaves',
+    genre: 'Terror, Sobrenatural',
+    synopsis:
+        'Los investigadores paranormales Ed y Lorraine Warren enfrentan uno de los casos más peligrosos de sus carreras, enfrentándose a una presencia demoniaca más poderosa que cualquier otra vista anteriormente.',
+    imageUrl:
+        'https://play-lh.googleusercontent.com/UkmdZlGJu-qcy3ue7IidfF2l3WD9BbNPcchOToBnYQHg6zORNuPSFKy5Xt8NbYQ7MpxyZz1KaBt7AJV5yoVB=w240-h480-rw',
+  ),
   Movie(
     title: 'Avengers: Endgame',
     tag: 'English',
@@ -599,8 +475,6 @@ final List<Movie> kMovies = [
   ),
 ];
 
-
-
 /// =======================================
 ///   MAIN PAGE: HOME / CATÁLOGO PELÍCULAS
 /// =======================================
@@ -613,8 +487,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final PageController _pageController =
-      PageController(viewportFraction: 0.9);
+  final PageController _pageController = PageController(viewportFraction: 0.9);
 
   final List<String> _genres = [
     'English',
@@ -654,7 +527,7 @@ class _MainPageState extends State<MainPage> {
         title: const Text(
           'Home',
           style: TextStyle(
-            color: Colors.white,         // 👈 texto en blanco
+            color: Colors.white,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -715,7 +588,7 @@ class _MainPageState extends State<MainPage> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Actividad: Pantalla de catálogo de películas',
+                          'Actividad: Producto Integrador',
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 14,
@@ -743,7 +616,7 @@ class _MainPageState extends State<MainPage> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Fecha: 17/11/2025',
+                          'Fecha: 29/11/2025',
                           style: TextStyle(
                             color: Colors.white60,
                             fontSize: 12,
@@ -952,9 +825,8 @@ class _MainPageState extends State<MainPage> {
                       child: Text(
                         _genres[index],
                         style: TextStyle(
-                          color: isSelected
-                              ? Colors.white
-                              : Colors.white70,
+                          color:
+                              isSelected ? Colors.white : Colors.white70,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
@@ -1041,7 +913,6 @@ class _MainPageState extends State<MainPage> {
     );
   }
 }
-
 
 /// =======================================
 ///   MODAL DETALLE DE PELÍCULA
@@ -1164,58 +1035,6 @@ Future<void> _showMovieDetailModal(
   );
 }
 
-
-/// =======================================
-///   MODAL DETALLE
-/// =======================================
-Future<void> _showPokemonDetailModal(
-    BuildContext context, int id) async {
-  await showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (_) {
-      return FutureBuilder<PokemonDetail>(
-        future: fetchPokemonDetail(id),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Padding(
-              padding: EdgeInsets.all(30),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          final p = snapshot.data!;
-
-          return Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '${capitalize(p.name)} (#${p.id})',
-                  style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                Image.network(p.imageUrl, height: 120),
-                const SizedBox(height: 20),
-                Text('Tipos: ${p.types.join(", ")}'),
-                Text('Altura: ${formatMeters(p.heightMeters)}'),
-                Text('Peso: ${formatKg(p.weightKg)}'),
-                const SizedBox(height: 20),
-              ],
-            ),
-          );
-        },
-      );
-    },
-  );
-}
-
-
 /// =======================================
 ///   PANTALLA DE ADMINISTRACIÓN DE CATÁLOGO
 /// =======================================
@@ -1249,93 +1068,91 @@ class _AdminPageState extends State<AdminPage> {
     super.dispose();
   }
 
-Future<void> _addMovie() async {
-  if (!_formKey.currentState!.validate()) return;
+  Future<void> _addMovie() async {
+    if (!_formKey.currentState!.validate()) return;
 
-  final movie = Movie(
-    title: _titleCtrl.text.trim(),
-    year: _yearCtrl.text.trim(),
-    director: _directorCtrl.text.trim(),
-    genre: _genreCtrl.text.trim(),
-    synopsis: _synopsisCtrl.text.trim(),
-    imageUrl: _imageUrlCtrl.text.trim(),
-    tag: 'Custom', // etiqueta genérica para admin
-  );
+    final movie = Movie(
+      title: _titleCtrl.text.trim(),
+      year: _yearCtrl.text.trim(),
+      director: _directorCtrl.text.trim(),
+      genre: _genreCtrl.text.trim(),
+      synopsis: _synopsisCtrl.text.trim(),
+      imageUrl: _imageUrlCtrl.text.trim(),
+      tag: 'Custom', // etiqueta genérica para admin
+    );
 
-  try {
-    // 1) Guardar registro en Firebase (colección de catálogo)
-    await FirebaseFirestore.instance.collection('moviesCatalog').add({
-      'title': movie.title,
-      'year': movie.year,
-      'director': movie.director,
-      'genre': movie.genre,
-      'synopsis': movie.synopsis,
-      'imageUrl': movie.imageUrl,
-      'tag': movie.tag,
-      'createdAt': FieldValue.serverTimestamp(),
-      'createdBy': kAdminUsername, // admin@test.com
-    });
+    try {
+      // 1) Guardar registro en Firebase (colección de catálogo)
+      await FirebaseFirestore.instance.collection('moviesCatalog').add({
+        'title': movie.title,
+        'year': movie.year,
+        'director': movie.director,
+        'genre': movie.genre,
+        'synopsis': movie.synopsis,
+        'imageUrl': movie.imageUrl,
+        'tag': movie.tag,
+        'createdAt': FieldValue.serverTimestamp(),
+        'createdBy': kAdminUsername, // admin@test.com
+      });
 
-    // 2) Actualizar la lista en memoria para que se vea en la app
+      // 2) Actualizar la lista en memoria para que se vea en la app
+      setState(() {
+        kMovies.add(movie);
+      });
+
+      // 3) Feedback al usuario
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Película agregada y registrada en Firebase'),
+        ),
+      );
+
+      // 4) Limpiar formulario
+      _titleCtrl.clear();
+      _yearCtrl.clear();
+      _directorCtrl.clear();
+      _genreCtrl.clear();
+      _synopsisCtrl.clear();
+      _imageUrlCtrl.clear();
+    } catch (e, st) {
+      debugPrint('Error guardando película en Firebase: $e');
+      debugPrintStack(stackTrace: st);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error al guardar en Firebase'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _removeMovie(int index) async {
+    final removed = kMovies[index];
+
     setState(() {
-      kMovies.add(movie);
+      kMovies.removeAt(index);
     });
 
-    // 3) Feedback al usuario
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Película agregada y registrada en Firebase'),
-      ),
+      SnackBar(content: Text('Película "${removed.title}" eliminada')),
     );
 
-    // 4) Limpiar formulario
-    _titleCtrl.clear();
-    _yearCtrl.clear();
-    _directorCtrl.clear();
-    _genreCtrl.clear();
-    _synopsisCtrl.clear();
-    _imageUrlCtrl.clear();
-  } catch (e, st) {
-    debugPrint('Error guardando película en Firebase: $e');
-    debugPrintStack(stackTrace: st);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Error al guardar en Firebase'),
-      ),
-    );
+    // Registrar la baja en Firebase (log de auditoría)
+    try {
+      await FirebaseFirestore.instance.collection('moviesDeletions').add({
+        'title': removed.title,
+        'year': removed.year,
+        'director': removed.director,
+        'genre': removed.genre,
+        'synopsis': removed.synopsis,
+        'imageUrl': removed.imageUrl,
+        'tag': removed.tag,
+        'deletedAt': FieldValue.serverTimestamp(),
+        'deletedBy': kAdminUsername,
+      });
+    } catch (e) {
+      debugPrint('Error registrando baja en Firebase: $e');
+    }
   }
-}
-
-
-Future<void> _removeMovie(int index) async {
-  final removed = kMovies[index];
-
-  setState(() {
-    kMovies.removeAt(index);
-  });
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('Película "${removed.title}" eliminada')),
-  );
-
-  // Registrar la baja en Firebase (log de auditoría)
-  try {
-    await FirebaseFirestore.instance.collection('moviesDeletions').add({
-      'title': removed.title,
-      'year': removed.year,
-      'director': removed.director,
-      'genre': removed.genre,
-      'synopsis': removed.synopsis,
-      'imageUrl': removed.imageUrl,
-      'tag': removed.tag,
-      'deletedAt': FieldValue.serverTimestamp(),
-      'deletedBy': kAdminUsername,
-    });
-  } catch (e) {
-    debugPrint('Error registrando baja en Firebase: $e');
-  }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -1345,11 +1162,11 @@ Future<void> _removeMovie(int index) async {
       backgroundColor: bgColor,
       appBar: AppBar(
         title: const Text('Administrar catálogo'),
-        backgroundColor: Colors.grey[900],
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black, // título e íconos en negro
         actions: [
           IconButton(
             onPressed: () {
-              // Cerrar sesión → regresar al login
               Navigator.pushReplacementNamed(context, LoginPage.routeName);
             },
             icon: const Icon(Icons.logout),
@@ -1394,10 +1211,9 @@ Future<void> _removeMovie(int index) async {
                               labelText: 'Título',
                               labelStyle: TextStyle(color: Colors.white70),
                             ),
-                            validator: (v) =>
-                                v == null || v.trim().isEmpty
-                                    ? 'Ingresa el título'
-                                    : null,
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Ingresa el título'
+                                : null,
                           ),
                           const SizedBox(height: 8),
 
@@ -1409,10 +1225,9 @@ Future<void> _removeMovie(int index) async {
                               labelText: 'Año',
                               labelStyle: TextStyle(color: Colors.white70),
                             ),
-                            validator: (v) =>
-                                v == null || v.trim().isEmpty
-                                    ? 'Ingresa el año'
-                                    : null,
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Ingresa el año'
+                                : null,
                           ),
                           const SizedBox(height: 8),
 
@@ -1423,10 +1238,9 @@ Future<void> _removeMovie(int index) async {
                               labelText: 'Director',
                               labelStyle: TextStyle(color: Colors.white70),
                             ),
-                            validator: (v) =>
-                                v == null || v.trim().isEmpty
-                                    ? 'Ingresa el director'
-                                    : null,
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Ingresa el director'
+                                : null,
                           ),
                           const SizedBox(height: 8),
 
@@ -1437,10 +1251,9 @@ Future<void> _removeMovie(int index) async {
                               labelText: 'Género',
                               labelStyle: TextStyle(color: Colors.white70),
                             ),
-                            validator: (v) =>
-                                v == null || v.trim().isEmpty
-                                    ? 'Ingresa el género'
-                                    : null,
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Ingresa el género'
+                                : null,
                           ),
                           const SizedBox(height: 8),
 
@@ -1452,10 +1265,9 @@ Future<void> _removeMovie(int index) async {
                               labelText: 'Sinopsis',
                               labelStyle: TextStyle(color: Colors.white70),
                             ),
-                            validator: (v) =>
-                                v == null || v.trim().isEmpty
-                                    ? 'Ingresa la sinopsis'
-                                    : null,
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Ingresa la sinopsis'
+                                : null,
                           ),
                           const SizedBox(height: 8),
 
@@ -1466,10 +1278,9 @@ Future<void> _removeMovie(int index) async {
                               labelText: 'URL de imagen',
                               labelStyle: TextStyle(color: Colors.white70),
                             ),
-                            validator: (v) =>
-                                v == null || v.trim().isEmpty
-                                    ? 'Ingresa la URL de la imagen'
-                                    : null,
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Ingresa la URL de la imagen'
+                                : null,
                           ),
                           const SizedBox(height: 12),
 
